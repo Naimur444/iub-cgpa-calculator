@@ -2,6 +2,10 @@
 
 Welcome to the IUB CGPA Calculator, a simple and intuitive tool to help you calculate your Cumulative Grade Point Average (CGPA) based on the grading system of the Independent University, Bangladesh.
 
+## Screenshot
+
+![IUB CGPA Calculator](assets/Screenshot.png)
+
 ## Features
 
 - Easily add, edit, and remove courses with associated grades and credit hours.
