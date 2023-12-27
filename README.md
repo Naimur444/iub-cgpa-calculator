@@ -22,6 +22,6 @@ Welcome to the IUB CGPA Calculator, a simple and intuitive tool to help you calc
 - Tailwind CSS for modern and sleek styling.
 - GitHub Pages for easy deployment and accessibility.
 
-Designed and developed by [Your Name].
+Designed and developed by Naimur Rahman.
 
 Feel free to use, modify, and contribute to this open-source project! If you have any suggestions or issues, please [open an issue](https://github.com/Naimur444/iub-cgpa-calculator/issues).
