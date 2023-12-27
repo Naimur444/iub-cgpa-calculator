@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Calculate your CGPA easily with the IUB CGPA Calculator. Designed and developed by Naimur.">
+  <link rel="icon" href="assets/favicon.png" type="image/x-icon">
+  <title>CGPA Calculator</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <!-- Include FontAwesome CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+
+<div id="app" class="bg-white p-8 rounded shadow-md max-w-md w-full">
+  <div class="mb-4 text-center">
+    <img src="https://media.licdn.com/dms/image/C5103AQHRZg3V-ZybLw/profile-displayphoto-shrink_800_800/0/1517271218269?e=2147483647&v=beta&t=wK3pen9o9zGjwGBeUhbisIImqvPEhstmFjor7BpkIUQ" alt="Logo" class="rounded-full w-24 h-24 mx-auto mb-4">
+    <h1 class="text-2xl font-bold">IUB CGPA Calculator</h1>
+  </div>
+
+  <div class="mb-4">
+    <label for="courseName" class="block text-sm font-semibold text-gray-600">Enter Course Name (Optional):</label>
+    <input v-model="course.name" type="text" id="courseName" class="mt-1 p-2 border rounded w-full">
+  </div>
+
+  <div class="mb-4">
+    <label for="courseGrade" class="block text-sm font-semibold text-gray-600">Select Grade:</label>
+    <select v-model="course.grade" id="courseGrade" class="mt-1 p-2 border rounded w-full">
+      <option value="A">A</option>
+      <option value="A-">A-</option>
+      <option value="B+">B+</option>
+      <option value="B">B</option>
+      <option value="B-">B-</option>
+      <option value="C+">C+</option>
+      <option value="C">C</option>
+      <option value="C-">C-</option>
+      <option value="D+">D+</option>
+      <option value="D">D</option>
+      <option value="F">F</option>
+    </select>
+  </div>
+
+  <div class="mb-4">
+    <label for="creditHours" class="block text-sm font-semibold text-gray-600">Enter Credit Hours:</label>
+    <input v-model.number="course.creditHours" type="number" id="creditHours" min="1" max="4" class="mt-1 p-2 border rounded w-full">
+  </div>
+
+  <div class="mb-4">
+    <button @click="addOrUpdateCourse" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full">{{ editingIndex === null ? 'Add Course' : 'Update Course' }}</button>
+  </div>
+
+    <div v-if="courses.length > 0">
+    <h2 class="text-xl font-semibold mb-2">Entered Courses:</h2>
+    <table class="w-full border">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="py-2 px-4 border">Course Name</th>
+          <th class="py-2 px-4 border">Grade</th>
+          <th class="py-2 px-4 border">Credit Hours</th>
+          <th class="py-2 px-4 border">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(course, index) in courses" :key="index">
+          <td class="py-2 px-4 border">{{ course.name || '-' }}</td>
+          <td class="py-2 px-4 border">{{ course.grade }}</td>
+          <td class="py-2 px-4 border">{{ course.creditHours }}</td>
+          <td class="py-2 px-4 border">
+            <button @click="editCourse(index)" class="text-blue-600 mr-2">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button @click="removeCourse(index)" class="text-red-600">
+              <i class="fas fa-trash"></i> Remove
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div v-if="courses.length > 0" class="mt-4">
+    <h2 class="text-xl font-semibold">CGPA: {{ calculateCGPA.toFixed(2) }}</h2>
+    <p class="text-gray-600">Total Credit Hours Earned: {{ totalCreditHoursEarned }}</p>
+  </div>
+
+  <div class="mt-4">
+    <button @click="reset" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded w-full">
+      <i class="fas fa-undo"></i> Reset
+    </button>
+  </div>
+<div class="mt-6 text-center text-gray-600 text-sm">
+  &copy; 2023 IUB CGPA Calculator | Designed and Developed by <a href="https://fb.com/naimur444" target="_blank" rel="noopener noreferrer">Naimur</a> &#10084;
+</div>
+</div>
+
+<!-- Include FontAwesome JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+
+<script>
+new Vue({
+  el: '#app',
+  data: {
+    course: {
+      grade: 'A',
+      creditHours: 1,
+      name: ''
+    },
+    courses: [],
+    editingIndex: null
+  },
+  methods: {
+    addOrUpdateCourse: function() {
+      if (this.editingIndex === null) {
+        this.courses.push({ ...this.course });
+      } else {
+        this.courses[this.editingIndex] = { ...this.course };
+        this.editingIndex = null;
+      }
+      this.resetCourse();
+    },
+    editCourse: function(index) {
+      this.course = { ...this.courses[index] };
+      this.editingIndex = index;
+    },
+    removeCourse: function(index) {
+      this.courses.splice(index, 1);
+      if (index === this.editingIndex) {
+        this.resetCourse();
+      }
+    },
+    reset: function() {
+      this.courses = [];
+      this.resetCourse();
+    },
+    resetCourse: function() {
+      this.course = {
+        grade: 'A',
+        creditHours: 1,
+        name: ''
+      };
+      this.editingIndex = null;
+    }
+  },
+  computed: {
+    calculateCGPA: function() {
+      let totalQualityPoints = 0;
+      let totalCreditHours = 0;
+
+      this.courses.forEach(course => {
+        let qualityPoints = 0;
+
+        switch (course.grade) {
+          case 'A': qualityPoints = 4.0; break;
+          case 'A-': qualityPoints = 3.7; break;
+          case 'B+': qualityPoints = 3.3; break;
+          case 'B': qualityPoints = 3.0; break;
+          case 'B-': qualityPoints = 2.7; break;
+          case 'C+': qualityPoints = 2.3; break;
+          case 'C': qualityPoints = 2.0; break;
+          case 'C-': qualityPoints = 1.7; break;
+          case 'D+': qualityPoints = 1.3; break;
+          case 'D': qualityPoints = 1.0; break;
+          case 'F': qualityPoints = 0; break;
+          default:
+            break;
+        }
+
+        totalQualityPoints += qualityPoints * course.creditHours;
+        totalCreditHours += course.creditHours;
+      });
+
+      if (totalCreditHours === 0) {
+        return 0;
+      }
+
+      return totalQualityPoints / totalCreditHours;
+    },
+    totalCreditHoursEarned: function() {
+      return this.courses.reduce((total, course) => total + course.creditHours, 0);
+    }
+  }
+});
+</script>
+
+</body>
+</html>
